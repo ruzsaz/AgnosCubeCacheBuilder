@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.concurrent.RecursiveAction;
 import java.util.concurrent.ForkJoinTask;
 
+import hu.agnos.cube.CubeType;
 import hu.agnos.cube.dimension.Node;
 import hu.agnos.cube.driver.service.Problem;
 import hu.agnos.cube.meta.queryDto.CacheKey;
@@ -31,7 +32,7 @@ public class CustomRecursiveAction extends RecursiveAction {
             pack.processedNodes().incrementAndGet();
             CacheKey key = CacheKey.fromNodeList(baseVector);
             if (pack.tmpCache().containsKey(key)) {
-                System.out.println("Duplicate key: " + resultElement.header());
+                System.err.println("Duplicate key: " + resultElement.header());
             }
             pack.tmpCache().put(key, resultElement.measureValues());
             ForkJoinTask.invokeAll(createSubtasks());
@@ -46,12 +47,6 @@ public class CustomRecursiveAction extends RecursiveAction {
         pack.recursionDepth().addAndGet(childQueries.size());
         return childQueries.stream().map(childQuery -> new CustomRecursiveAction(pack, childQuery)).toList();
     }
-
-    private void processing(String work) {
-        String result = work.toUpperCase();
-        System.out.println("This result - (" + result + ") - was processed by " + Thread.currentThread().getName());
-    }
-
 
     private List<List<Node>> getAfterLastNotTopLevelNodeChildQueries() {
         int lastNotTopLevelIndex = CustomRecursiveAction.getLastNotTopLevelIndex(baseVector);
@@ -84,5 +79,6 @@ public class CustomRecursiveAction extends RecursiveAction {
         }
         return result;
     }
+
 
 }

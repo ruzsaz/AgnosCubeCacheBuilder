@@ -77,7 +77,7 @@ public final class Main {
             out.close();
             fileOut.close();
             System.out.println("Cube is saved, exiting");
-            System.out.println(cube.getCache().size());
+            System.out.println(cube.getCacheSize());
         } catch (IOException e) {
             log.error(e.getMessage());
         }

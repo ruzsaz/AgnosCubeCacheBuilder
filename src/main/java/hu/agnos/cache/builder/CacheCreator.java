@@ -2,30 +2,19 @@ package hu.agnos.cache.builder;
 
 import hu.agnos.cube.Cube;
 import hu.agnos.cube.dimension.Node;
-import hu.agnos.cube.driver.service.DataRetriever;
-import hu.agnos.cube.driver.service.Problem;
 import hu.agnos.cube.driver.service.ProblemFactory;
 import hu.agnos.cube.meta.queryDto.CacheKey;
-import hu.agnos.cube.meta.resultDto.CoordinatesDTO;
-import hu.agnos.cube.meta.resultDto.ResultElement;
 
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ForkJoinPool;
-import java.util.concurrent.Future;
-import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
+import gnu.trove.map.hash.TObjectIntHashMap;
 import org.slf4j.LoggerFactory;
 
 public class CacheCreator {
@@ -40,11 +29,7 @@ public class CacheCreator {
     private final AtomicInteger recursionDepth = new AtomicInteger(1);
     private long startTime;
     private Timer logTimer;
-    private final Object counterLock = new Object();
-
     private final ConcurrentMap<CacheKey, double[]> tmpCache = new ConcurrentHashMap<>(10);
-
-    private final DataRetriever retriever = new DataRetriever();
 
     CacheCreator(Cube cube) {
         this.cube = cube;
@@ -76,8 +61,7 @@ public class CacheCreator {
         ForkJoinPool commonPool = new ForkJoinPool(Runtime.getRuntime().availableProcessors());
         commonPool.invoke(customRecursiveAction);
         commonPool.shutdown();
-
-        cube.setCache(tmpCache);
+        cube.putAllToCache(tmpCache);
     }
 
     private void startLogger(Callable<String> logCreator) {
