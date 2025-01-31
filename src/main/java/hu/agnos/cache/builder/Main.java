@@ -53,9 +53,9 @@ public final class Main {
         }
 
         String inputFilePath = cmd.getOptionValue("input");
-        String outputFilePath = inputFilePath.substring(0, inputFilePath.lastIndexOf('.')) + "_cached.cube";
-
         int complexity = Integer.parseInt(cmd.getOptionValue("complexity"));
+        String outputFilePath = inputFilePath.substring(0, inputFilePath.lastIndexOf('.')) + "_cache" + complexity + ".cube";
+
 
         Optional<Cube> optCube = Main.loadFileAsCube(inputFilePath);
         if (optCube.isPresent()) {

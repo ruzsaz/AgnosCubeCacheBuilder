@@ -1,11 +1,11 @@
 package hu.agnos.cache.builder;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.RecursiveAction;
 import java.util.concurrent.ForkJoinTask;
 
-import hu.agnos.cube.CubeType;
 import hu.agnos.cube.dimension.Node;
 import hu.agnos.cube.driver.service.Problem;
 import hu.agnos.cube.meta.queryDto.CacheKey;
@@ -25,14 +25,17 @@ public class CustomRecursiveAction extends RecursiveAction {
     @Override
     protected void compute() {
         Problem problem = pack.problemFactory().createProblem(baseVector);
-        int affectedRows = (pack.complexity() == 0) ? problem.getNumberOfAffectedIntervals() : problem.getNumberOfAffectedRows();
-
-        if (affectedRows > pack.complexity()) {
+        boolean shouldCalculateCache = (problem.getCachedResult() != null);
+        if (!shouldCalculateCache) {
+            int affectedRows = (pack.complexity() == 0) ? problem.getNumberOfAffectedIntervals() : problem.getNumberOfAffectedRows();
+            shouldCalculateCache = (affectedRows > pack.complexity());
+        }
+        if (shouldCalculateCache) {
             ResultElement resultElement = problem.compute();
             pack.processedNodes().incrementAndGet();
             CacheKey key = CacheKey.fromNodeList(baseVector);
             if (pack.tmpCache().containsKey(key)) {
-                System.err.println("Duplicate key: " + resultElement.header());
+                System.err.println("Duplicate key: " + Arrays.toString(resultElement.header()));
             }
             pack.tmpCache().put(key, resultElement.measureValues());
             ForkJoinTask.invokeAll(createSubtasks());

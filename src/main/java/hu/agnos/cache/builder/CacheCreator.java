@@ -38,20 +38,18 @@ public class CacheCreator {
     public void createCache(int complexity) {
         this.startTime = System.currentTimeMillis();
 
-        startLogger(() -> "Processed nodes: " + processedNodes.get()
-                + ", skipped: " + skippedNodes.get()
-                + ", speed: " + Math.round((processedNodes.get() + skippedNodes.get()) / ((System.currentTimeMillis() - startTime) / 1000.0)) + " nodes/s"
-                + ", recursions: " + recursionDepth.get() + "             ");
+        startLogger(() -> "Processed: " + processedNodes.get()
+                + ", speed: " + Math.round((processedNodes.get()) / ((System.currentTimeMillis() - startTime) / 1000.0)) + " nodes/s"
+                + ", recursions: " + recursionDepth.get() + "                            ");
         this.problemFactory = new ProblemFactory(cube);
         List<Node> topNode = cube.getDimensions().stream().map(dimension -> dimension.getNodes()[0][0]).toList();
         addToCacheIfComplexityHigherThan(topNode, complexity);
 
         long timestamp1 = System.currentTimeMillis();
-        stopLogger(() -> "Processed nodes: " + processedNodes.get()
-                + ", skipped: " + skippedNodes.get()
-                + ", speed: " + Math.round((processedNodes.get() + skippedNodes.get()) / ((System.currentTimeMillis() - startTime) / 1000.0)) + " nodes/s"
-                + ", recursions: " + recursionDepth.get() + "             ");
-        System.out.println("Running time: " + (timestamp1-startTime) / 1000 + " s");
+        stopLogger(() -> "Processed: " + processedNodes.get()
+                + ", speed: " + Math.round((processedNodes.get()) / ((System.currentTimeMillis() - startTime) / 1000.0)) + " nodes/s"
+                + ", recursions: " + recursionDepth.get() + "                             ");
+        System.out.println("Running time: " + (timestamp1-startTime) / 1000 / 60 + " minutes");
 
     }
 
@@ -71,7 +69,7 @@ public class CacheCreator {
             public void run() {
                 long runTime = System.currentTimeMillis() - startTime;
                 try {
-                    System.out.print("\r(" + runTime/1000 + " s) " + logCreator.call());
+                    System.out.print(("\r(" + runTime/1000 + " s) " + logCreator.call()).substring(0, 79));
                 } catch (Exception e) {
                     log.error(e.getMessage());
                 }
@@ -83,7 +81,7 @@ public class CacheCreator {
         logTimer.cancel();
         long runTime = System.currentTimeMillis() - startTime;
         try {
-            System.out.println("\r(" + runTime/1000.0 + " s) " + finalLogCreator.call());
+            System.out.println(("\r(" + runTime/1000.0 + " s) " + finalLogCreator.call()).substring(0, 79));
         } catch (Exception e) {
             log.error(e.getMessage());
         }
