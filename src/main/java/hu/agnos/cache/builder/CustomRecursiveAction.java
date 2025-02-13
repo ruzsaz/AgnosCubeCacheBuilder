@@ -24,23 +24,29 @@ public class CustomRecursiveAction extends RecursiveAction {
 
     @Override
     protected void compute() {
-        Problem problem = pack.problemFactory().createProblem(baseVector);
-        boolean shouldCalculateCache = (problem.getCachedResult() != null);
-        if (!shouldCalculateCache) {
-            int affectedRows = (pack.complexity() == 0) ? problem.getNumberOfAffectedIntervals() : problem.getNumberOfAffectedRows();
-            shouldCalculateCache = (affectedRows > pack.complexity());
-        }
-        if (shouldCalculateCache) {
-            ResultElement resultElement = problem.compute();
+        CacheKey key = CacheKey.fromNodeList(baseVector);
+
+        if (pack.cube().isCached(key)) {
             pack.processedNodes().incrementAndGet();
-            CacheKey key = CacheKey.fromNodeList(baseVector);
-            if (pack.tmpCache().containsKey(key)) {
-                System.err.println("Duplicate key: " + Arrays.toString(resultElement.header()));
-            }
-            pack.tmpCache().put(key, resultElement.measureValues());
             ForkJoinTask.invokeAll(createSubtasks());
         } else {
-            pack.skippedNodes().incrementAndGet();
+            Problem problem = pack.problemFactory().createProblem(baseVector);
+            boolean shouldCalculateCache = (problem.getCachedResult() != null);
+            if (!shouldCalculateCache) {
+                int affectedRows = (pack.complexity() == 0) ? problem.getNumberOfAffectedIntervals() : problem.getNumberOfAffectedRows();
+                shouldCalculateCache = (affectedRows > pack.complexity());
+            }
+            if (shouldCalculateCache) {
+                ResultElement resultElement = problem.compute();
+                pack.processedNodes().incrementAndGet();
+                if (pack.tmpCache().containsKey(key)) {
+                    System.err.println("Duplicate key: " + Arrays.toString(resultElement.header()));
+                }
+                pack.tmpCache().put(key, resultElement.measureValues());
+                ForkJoinTask.invokeAll(createSubtasks());
+            } else {
+                pack.skippedNodes().incrementAndGet();
+            }
         }
         pack.recursionDepth().decrementAndGet();
     }

@@ -59,7 +59,7 @@ public class CacheCreator {
         ForkJoinPool commonPool = new ForkJoinPool(Runtime.getRuntime().availableProcessors());
         commonPool.invoke(customRecursiveAction);
         commonPool.shutdown();
-        cube.putAllToCache(tmpCache);
+        cube.addAllToCache(tmpCache);
     }
 
     private void startLogger(Callable<String> logCreator) {
@@ -69,7 +69,7 @@ public class CacheCreator {
             public void run() {
                 long runTime = System.currentTimeMillis() - startTime;
                 try {
-                    System.out.print(("\r(" + runTime/1000 + " s) " + logCreator.call()).substring(0, 79));
+                    System.out.print(("\r(" + runTime/1000 + " s) " + logCreator.call()).substring(0, 70));
                 } catch (Exception e) {
                     log.error(e.getMessage());
                 }
@@ -81,7 +81,7 @@ public class CacheCreator {
         logTimer.cancel();
         long runTime = System.currentTimeMillis() - startTime;
         try {
-            System.out.println(("\r(" + runTime/1000.0 + " s) " + finalLogCreator.call()).substring(0, 79));
+            System.out.println(("\r(" + runTime/1000.0 + " s) " + finalLogCreator.call()).substring(0, 70));
         } catch (Exception e) {
             log.error(e.getMessage());
         }
